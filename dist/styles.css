@@ -3,6 +3,7 @@
    families. Radius is fixed per component; hover moves the card, it never reshapes it. */
 
 :root {
+  color-scheme: light;
   --canvas: #f2f3f7;
   --surface: #ffffff;
   --line: #e4e7ed;
@@ -25,7 +26,81 @@
   --r-md: 12px;
   --r-sm: 10px;
   --shadow: 0 1px 2px rgba(18, 22, 30, 0.05), 0 10px 26px rgba(18, 22, 30, 0.05);
+  --shadow-lift: 0 2px 4px rgba(18, 22, 30, 0.06), 0 16px 32px rgba(18, 22, 30, 0.11);
+
+  /* Everything the two themes differ on is a token: a rule that paints a surface with a
+     literal colour is a rule that will be wrong in the other theme. */
+  --hover: #f6f7fa;
+  --selected: #f4f5f9;
+  --raised: #ffffff;
+  --chip: #eef0f4;
+  --hairline: #f1f2f6;
+  --track: #eceef3;
+  --meter-off: #e9ebf0;
+  --meter-on: #7cc576;
+  --seg-free: #dfe3ea;
+  --seg-used: #c3cad6;
+  --seg-used-ink: #374151;
+  --border-strong: #c9cfda;
+  --ok-ink: #157f51;
+  --ok-bg: rgba(34, 181, 115, 0.12);
+  --warn-ink: #9a6408;
+  --warn-bg: rgba(245, 166, 35, 0.16);
+  --locked-bg: rgba(245, 69, 92, 0.1);
+  --focus-ring: rgba(245, 69, 92, 0.14);
+  --on-accent: #ffffff;
+  --backdrop: rgba(20, 24, 31, 0.38);
+  --sheet-shadow: 0 22px 58px rgba(18, 22, 30, 0.22);
 }
+
+/* Dark: the same hierarchy, one step up in value, and the accent lifted so it still clears
+   the surface it sits on. State colours are re-tinted rather than reused, because a 10% red
+   wash on white is invisible on near-black. */
+[data-theme="dark"] {
+  /* Native scrollbars, form controls and the password reveal all follow this. */
+  color-scheme: dark;
+  --canvas: #101419;
+  --surface: #171c23;
+  --line: #262d37;
+  --ink: #e9edf3;
+  --ink-2: #aab4c2;
+  --muted: #6f7a8b;
+
+  --accent: #ff5f74;
+  --accent-ink: #ff8b9b;
+  --violet: #9b86ff;
+  --green: #34c981;
+  --amber: #f7b84e;
+  --orange: #ff9569;
+  --slate: #7c8797;
+
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 26px rgba(0, 0, 0, 0.4);
+  --shadow-lift: 0 2px 4px rgba(0, 0, 0, 0.4), 0 16px 32px rgba(0, 0, 0, 0.5);
+
+  --hover: #1c222b;
+  --selected: #1f2732;
+  --raised: #1a2029;
+  --chip: #232b36;
+  --hairline: #202733;
+  --track: #262f3b;
+  --meter-off: #2b3441;
+  --meter-on: #4fb573;
+  --seg-free: #333d4b;
+  --seg-used: #4d5a6d;
+  --seg-used-ink: #d3dae5;
+  --border-strong: #3c4757;
+  --ok-ink: #4fd39a;
+  --ok-bg: rgba(52, 201, 129, 0.18);
+  --warn-ink: #f5c270;
+  --warn-bg: rgba(247, 184, 78, 0.18);
+  --locked-bg: rgba(255, 95, 116, 0.16);
+  --focus-ring: rgba(255, 95, 116, 0.28);
+  --backdrop: rgba(0, 0, 0, 0.62);
+  --sheet-shadow: 0 22px 58px rgba(0, 0, 0, 0.6);
+}
+
+/* The mark is one flat accent red on transparency, so it needs no adjustment to sit on a
+   dark shell — sampling the PNG shows every opaque pixel is that colour. */
 
 * {
   box-sizing: border-box;
@@ -106,6 +181,39 @@ input {
   font-weight: 700;
 }
 
+/* The theme switch is the only control in the brand row, so it holds the far edge and stays
+  quiet until it is hovered. */
+.icon-btn {
+  margin-left: auto;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+}
+
+.icon-btn:hover {
+  background: var(--hover);
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.icon-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.icon-btn .svg {
+  width: 17px;
+  height: 17px;
+}
+
 .side-caption {
   display: flex;
   align-items: center;
@@ -150,11 +258,11 @@ input {
 }
 
 .drive-list li:hover {
-  background: #f6f7fa;
+  background: var(--hover);
 }
 
 .drive-list li[aria-selected="true"] {
-  background: #f4f5f9;
+  background: var(--selected);
   box-shadow: inset 0 0 0 1px var(--line);
 }
 
@@ -163,8 +271,22 @@ input {
   color: var(--muted);
 }
 
-.drive-list li[aria-selected="true"] .svg {
-  color: var(--accent);
+/* The glyph carries the vault state in the same colours as the badge beside it. Selection is
+   the row's own background, so the glyph never has to do double duty. */
+.drive-list li .svg.state-locked {
+  color: var(--accent-ink);
+}
+
+.drive-list li .svg.state-unlocked {
+  color: var(--green);
+}
+
+.drive-list li .svg.state-recovering {
+  color: var(--warn-ink);
+}
+
+.drive-list li .svg.state-error {
+  color: var(--accent-ink);
 }
 
 .drive-name {
@@ -318,7 +440,7 @@ input {
   align-items: center;
   justify-content: center;
   min-width: 0;
-  color: #fff;
+  color: var(--on-accent);
   font: 600 11px/1 var(--mono);
   padding: 0 6px;
   white-space: nowrap;
@@ -326,7 +448,7 @@ input {
 }
 
 .seg.free {
-  background: #dfe3ea;
+  background: var(--seg-free);
   color: var(--ink-2);
 }
 
@@ -335,8 +457,8 @@ input {
 }
 
 .seg.used {
-  background: #c3cad6;
-  color: #374151;
+  background: var(--seg-used);
+  color: var(--seg-used-ink);
 }
 
 .legend {
@@ -361,11 +483,11 @@ input {
 }
 
 .legend i.used {
-  background: #c3cad6;
+  background: var(--seg-used);
 }
 
 .legend i.free {
-  background: #dfe3ea;
+  background: var(--seg-free);
 }
 
 /* ---------- content tiles ---------- */
@@ -386,7 +508,7 @@ input {
 .tile {
   border-radius: var(--r-lg);
   padding: 16px;
-  color: #fff;
+  color: var(--on-accent);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -396,7 +518,7 @@ input {
 
 .tile:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgba(18, 22, 30, 0.06), 0 16px 32px rgba(18, 22, 30, 0.11);
+  box-shadow: var(--shadow-lift);
 }
 
 .tile .glyph {
@@ -433,7 +555,7 @@ input {
 }
 
 .tile .glyph svg {
-  color: #fff;
+  color: var(--on-accent);
 }
 
 .documents {
@@ -502,7 +624,7 @@ input {
   border-radius: 9px;
   display: grid;
   place-items: center;
-  color: #fff;
+  color: var(--on-accent);
   font: 700 9.5px/1 var(--mono);
   text-transform: uppercase;
   overflow: hidden;
@@ -543,7 +665,7 @@ input {
   padding: 5px 11px;
   font: 400 11.5px/1.6 var(--mono);
   color: var(--ink-2);
-  border-bottom: 1px solid #f1f2f6;
+  border-bottom: 1px solid var(--hairline);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -638,7 +760,7 @@ input[type="text"]:focus,
 input[type="password"]:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(245, 69, 92, 0.14);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .check {
@@ -705,7 +827,7 @@ input[type="password"]:focus {
 }
 
 .node:hover {
-  background: #fff;
+  background: var(--raised);
 }
 
 .node .twist {
@@ -842,12 +964,12 @@ button:disabled {
 
 button.primary {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 button.primary:not(:disabled):hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(245, 69, 92, 0.28);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 button.ghost {
@@ -857,13 +979,13 @@ button.ghost {
 }
 
 button.ghost:not(:disabled):hover {
-  border-color: #c9cfda;
-  background: #fafbfc;
+  border-color: var(--border-strong);
+  background: var(--raised);
 }
 
 button.danger {
   background: var(--surface);
-  border-color: rgba(245, 69, 92, 0.4);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
   color: var(--accent-ink);
 }
 
@@ -888,7 +1010,7 @@ button.block-btn {
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  background: #eef0f4;
+  background: var(--chip);
   color: var(--ink-2);
   white-space: nowrap;
 }
@@ -902,27 +1024,27 @@ button.block-btn {
 }
 
 .badge.locked {
-  background: rgba(245, 69, 92, 0.1);
+  background: var(--locked-bg);
   color: var(--accent-ink);
 }
 
 .badge.unlocked {
-  background: rgba(34, 181, 115, 0.12);
-  color: #157f51;
+  background: var(--ok-bg);
+  color: var(--ok-ink);
 }
 
 .badge.recovering {
-  background: rgba(245, 166, 35, 0.16);
-  color: #9a6408;
+  background: var(--warn-bg);
+  color: var(--warn-ink);
 }
 
 .badge.plain {
-  background: #eef0f4;
+  background: var(--chip);
   color: var(--ink-2);
 }
 
 .badge.error {
-  background: rgba(245, 69, 92, 0.14);
+  background: var(--focus-ring);
   color: var(--accent-ink);
 }
 
@@ -942,13 +1064,13 @@ button.block-btn {
 .warn {
   margin: 0;
   font-size: 12.5px;
-  color: #9a6408;
+  color: var(--warn-ink);
 }
 
 .ok {
   margin: 0;
   font-size: 12.5px;
-  color: #157f51;
+  color: var(--ok-ink);
 }
 
 .empty {
@@ -967,7 +1089,7 @@ button.block-btn {
   height: 5px;
   flex: 1;
   border-radius: 3px;
-  background: #e9ebf0;
+  background: var(--meter-off);
   transition: background 160ms ease;
 }
 
@@ -980,7 +1102,7 @@ button.block-btn {
 }
 
 .meter.s3 i.on {
-  background: #7cc576;
+  background: var(--meter-on);
 }
 
 .meter.s4 i.on {
@@ -1036,7 +1158,7 @@ button.block-btn {
 .track {
   height: 8px;
   border-radius: 999px;
-  background: #eceef3;
+  background: var(--track);
   overflow: hidden;
 }
 
@@ -1079,7 +1201,7 @@ button.block-btn {
 }
 
 .log li:hover {
-  background: #f7f8fa;
+  background: var(--hover);
 }
 
 .log time {
@@ -1093,7 +1215,7 @@ button.block-btn {
 }
 
 .log li.ok .msg {
-  color: #157f51;
+  color: var(--ok-ink);
 }
 
 .log li.bad .msg {
@@ -1152,7 +1274,7 @@ button.block-btn {
 
 .tab:not(:disabled):hover {
   transform: translateY(-2px);
-  border-color: #c9cfda;
+  border-color: var(--border-strong);
 }
 
 .tab:focus-visible {
@@ -1183,12 +1305,12 @@ button.block-btn {
   color: var(--ink);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
-  box-shadow: 0 22px 58px rgba(18, 22, 30, 0.22);
+  box-shadow: var(--sheet-shadow);
   overflow: auto;
 }
 
 .sheet::backdrop {
-  background: rgba(20, 24, 31, 0.38);
+  background: var(--backdrop);
 }
 
 .sheet-x {

@@ -48,6 +48,7 @@ const els = {
   sheet: document.getElementById("action-sheet"),
   sheetBody: document.getElementById("sheet-body"),
   sheetClose: document.getElementById("sheet-close"),
+  themeToggle: document.getElementById("theme-toggle"),
 };
 
 const state = {
@@ -97,6 +98,23 @@ function group(className, children) {
 /* Twelve hand-written paths; an icon library would be a build step for no benefit. */
 const ICONS = {
   drive: ["M3 8h18v9H3z", "M7 12.5h.01", "M11 12.5h6"],
+  /* One padlock drawn twice: same body, same keyhole, and only the hoop differs. A closed
+     shackle that reaches the body on both sides is locked; a hoop whose left side stops in
+     the air is unlocked. Anything else would be two unrelated objects. */
+  lock: ["M6.5 10.5h11v9.5h-11z", "M9 10.5V7.6a3 3 0 0 1 6 0v2.9", "M12 13.8v2.8"],
+  unlock: ["M6.5 10.5h11v9.5h-11z", "M9 7.6a3 3 0 0 1 6 0v2.9", "M12 13.8v2.8"],
+  moon: ["M20 14.6A8.6 8.6 0 0 1 9.4 4 8.6 8.6 0 1 0 20 14.6z"],
+  sun: [
+    "M12 7.6a4.4 4.4 0 1 0 0 8.8 4.4 4.4 0 0 0 0-8.8z",
+    "M12 2.4v2.2",
+    "M12 19.4v2.2",
+    "M2.4 12h2.2",
+    "M19.4 12h2.2",
+    "M5.1 5.1l1.6 1.6",
+    "M17.3 17.3l1.6 1.6",
+    "M18.9 5.1l-1.6 1.6",
+    "M6.7 17.3l-1.6 1.6",
+  ],
   documents: ["M7 3h7l4 4v14H7z", "M13.8 3v4.2H18"],
   images: ["M4 5h16v14H4z", "M15.5 5h-13v9", "M8.5 10.5a1.4 1.4 0 1 0 0-2.8 1.4 1.4 0 0 0 0 2.8z", "M4.5 17l4.5-4.5 3.5 3.5 3-2.5 4 4"],
   videos: ["M4 5h16v14H4z", "M10.5 8.8l5.6 3.2-5.6 3.2z"],
@@ -272,6 +290,16 @@ const STATE_TEXT = {
   error: "unreadable vault",
 };
 
+/* A padlock in the list says what the row is for; a drive glyph on an ordinary volume says
+   there is nothing to open. */
+const DRIVE_GLYPH = {
+  locked: "lock",
+  unlocked: "unlock",
+  recovering: "lock",
+  error: "drive",
+  plain: "drive",
+};
+
 function stateOf(report) {
   if (!report?.initialised) return "plain";
   if (report.error) return "error";
@@ -342,7 +370,7 @@ function renderDrives() {
     const vault = mount.drive_tooth;
     const st = vault ? vault.state : "plain";
     li.title = mount.path;
-    li.append(icon("drive"), el("span", "drive-name", mount.name));
+    li.append(icon(DRIVE_GLYPH[st] ?? "drive", `state-${st}`), el("span", "drive-name", mount.name));
 
     const bits = [];
     if (mount.is_boot) bits.push("system");
@@ -1053,6 +1081,30 @@ async function surface() {
     // Denied by the window layer is still a prompt the user can see on next focus.
   }
 }
+
+/* Light or dark is a preference with nothing secret in it, so it lives in localStorage and
+   theme.js has already applied it before this runs. The glyph shows what the click gives you. */
+const THEME = window.drivetoothTheme;
+
+function paintThemeToggle() {
+  const dark = document.documentElement.dataset.theme === "dark";
+  els.themeToggle.replaceChildren(icon(dark ? "sun" : "moon"));
+  els.themeToggle.setAttribute("aria-pressed", String(dark));
+  els.themeToggle.title = dark ? "Switch to the light theme" : "Switch to the dark theme";
+}
+
+els.themeToggle.addEventListener("click", () => {
+  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  THEME.paintTheme(next);
+  try {
+    localStorage.setItem(THEME.THEME_KEY, next);
+  } catch {
+    // Storage refused: the theme still changes for this run.
+  }
+  paintThemeToggle();
+});
+
+paintThemeToggle();
 
 document.getElementById("refresh-drives").addEventListener("click", () => rescan(false));document.getElementById("clear-log").addEventListener("click", () => els.log.replaceChildren());
 

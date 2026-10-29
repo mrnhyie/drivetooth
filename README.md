@@ -109,9 +109,15 @@ all stop with an explanation rather than a repair that could cost data.
 A single window, no login, no telemetry:
 
 - **Drives** (left) — every mounted volume, its filesystem, free space and vault state,
-  with the full mount path as the tooltip. Re-read every five seconds while the window is in
+  with the full mount path as the tooltip. The row glyph is a padlock once a vault exists —
+  closed while sealed, open while the key is in this session — and an ordinary drive keeps the
+  drive glyph. Re-read every five seconds while the window is in
   the foreground, never during a pass; a refresh that finds nothing changed only updates the
   numbers, so the folder tree you opened and the password you are typing are not wiped.
+- **Light and dark** — the switch in the brand row follows the system until you touch it, then
+  your choice is stored in `localStorage`. `dist/theme.js` applies it before the shell paints so
+  there is no white flash, and it is loaded by `src` rather than inline because the app's CSP is
+  `default-src 'self'` with no script exception. Every colour the themes differ on is a token.
 - **Drive space** — total, used, free, and how much of it is ciphertext. Once the drive's
   contents are visible, the used region is split into the same content families the tiles use.
 - **Contents, on the first click** — clicking a drive answers "what is on it?" with no further

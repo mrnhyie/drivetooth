@@ -18,8 +18,15 @@
         .replace(/<\/?html[^>]*>/g, "")
         .replace(/\.\/styles\.css/, "/dist/styles.css")
         .replace(/src="\.\//g, 'src="/dist/')
-        .replace(/<script src="\.\/main\.js" type="module"><\/script>/, "");
+        /* Both scripts stay inert in the markup and are appended below, in load order. */
+        .replace(/<script src="\/dist\/(theme|main)\.js"[^>]*><\/script>/g, "");
       document.documentElement.innerHTML = markup;
+
+      /* Scripts written through innerHTML never run, so the theme is applied here the same way
+         the app applies it: before the shell exists. */
+      const theme = document.createElement("script");
+      theme.src = "/dist/theme.js";
+      document.head.append(theme);
 
       const mock = document.createElement("script");
       mock.src = "/scripts/harness-mock.js";
