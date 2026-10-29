@@ -1,0 +1,68 @@
+name: Release
+
+# Pushing a tag like `v0.1.0` builds all three platforms and collects the artifacts into a
+# draft GitHub Release. The asset names are what docs/index.html links to, so renaming them
+# here means editing the `data-suffix` values there too.
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            # One dmg for both Macs, so the download page has a single macOS button.
+            targets: aarch64-apple-darwin,x86_64-apple-darwin
+            args: --target universal-apple-darwin
+          - os: windows-latest
+            targets: x86_64-pc-windows-msvc
+            args: ""
+          - os: ubuntu-22.04
+            targets: x86_64-unknown-linux-gnu
+            args: ""
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.targets }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install Linux build dependencies
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+
+      - run: npm ci
+
+      - name: Engine tests
+        run: cargo test --locked --manifest-path src-tauri/Cargo.toml --no-default-features
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: DriveTooth ${{ github.ref_name }}
+          releaseBody: |
+            Password-gated, in-place encryption for USB and external drives.
+            See docs/index.html for what each build does and what a locked drive still exposes.
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}

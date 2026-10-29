@@ -1,0 +1,15 @@
+{
+  "name": "drivetooth",
+  "version": "0.1.0",
+  "private": true,
+  "description": "In-place per-file drive encryption with password-gated volumes",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "tauri": "tauri",
+    "test:engine": "cargo test --manifest-path src-tauri/Cargo.toml --no-default-features"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}

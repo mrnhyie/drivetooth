@@ -1,0 +1,999 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DriveTooth — a holistic tooth for drives</title>
+    <meta
+      name="description"
+      content="DriveTooth locks the files on a USB stick behind one password, wherever the stick goes. No account, no cloud, no server to trust. Free and open source for macOS, Windows and Linux."
+    />
+    <link rel="icon" href="./logo.png" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..600,0..1,0&display=swap"
+    />
+    <style>
+      /* One palette with the app: white surfaces on a grey canvas, one accent, colour reserved
+         for state. Radius is fixed per component; hover lifts a card, it never reshapes it. */
+      :root {
+        --canvas: #f2f3f7;
+        --surface: #ffffff;
+        --line: #e4e7ed;
+        --ink: #14181f;
+        --ink-2: #4b5563;
+        --muted: #8a94a6;
+        --accent: #f5455c;
+        --accent-ink: #b0233a;
+        --green: #22b573;
+        --green-ink: #10794b;
+        --amber: #f5a623;
+        --violet: #6c4bf6;
+        --sans: "Avenir Next", "Segoe UI Variable Text", "Segoe UI", "Helvetica Neue", sans-serif;
+        --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+        --r-lg: 16px;
+        --r-md: 12px;
+        --r-sm: 10px;
+        --shadow: 0 1px 2px rgba(18, 22, 30, 0.05), 0 10px 26px rgba(18, 22, 30, 0.05);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--ink);
+        font: 400 15.5px/1.6 var(--sans);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a {
+        color: var(--accent-ink);
+      }
+
+      .wrap {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      /* Material Symbols, sized per role rather than per glyph. */
+      .ms {
+        font-family: "Material Symbols Rounded", sans-serif;
+        font-weight: normal;
+        font-style: normal;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        white-space: nowrap;
+        -webkit-font-feature-settings: "liga";
+        -webkit-font-smoothing: antialiased;
+        display: inline-block;
+        font-size: 20px;
+        flex: none;
+      }
+
+      .ms.fill {
+        font-variation-settings: "FILL" 1, "wght" 500;
+      }
+
+      /* ---------- nav ---------- */
+
+      header.site {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: rgba(242, 243, 247, 0.94);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .site-row {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        height: 58px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 17px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: var(--ink);
+        text-decoration: none;
+      }
+
+      .brand img {
+        width: 26px;
+        height: 26px;
+        display: block;
+      }
+
+      .brand b {
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .nav {
+        display: flex;
+        gap: 16px;
+        margin-left: auto;
+        font-size: 14px;
+      }
+
+      .nav a {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: var(--ink-2);
+        text-decoration: none;
+      }
+
+      .nav a .ms {
+        font-size: 17px;
+      }
+
+      .nav a:hover {
+        color: var(--ink);
+      }
+
+      /* ---------- hero ---------- */
+
+      .hero {
+        padding: 70px 0 44px;
+      }
+
+      /* The catchphrase sits above the headline as a kicker: brand line first, claim second. */
+      .kicker {
+        margin: 0 0 14px;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(30px, 5.2vw, 46px);
+        line-height: 1.14;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        max-width: 18ch;
+      }
+
+      .lede {
+        margin: 18px 0 0;
+        max-width: 58ch;
+        font-size: 17.5px;
+        color: var(--ink-2);
+      }
+
+      .cta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: var(--r-sm);
+        border: 1px solid transparent;
+        padding: 11px 17px;
+        font-size: 14.5px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+      }
+
+      .btn .ms {
+        font-size: 19px;
+      }
+
+      .btn.primary {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .btn.primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(245, 69, 92, 0.28);
+      }
+
+      .btn.ghost {
+        background: var(--surface);
+        border-color: var(--line);
+        color: var(--ink);
+      }
+
+      .btn.ghost:hover {
+        border-color: #c9cfda;
+      }
+
+      .btn small {
+        font-weight: 400;
+        color: var(--muted);
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+
+      .btn.primary small {
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .promise {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 14px;
+        margin: 40px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .promise li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        color: var(--ink-2);
+      }
+
+      .promise .ms {
+        color: var(--green-ink);
+        font-size: 21px;
+      }
+
+      /* ---------- sections ---------- */
+
+      section {
+        padding: 44px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      h2 {
+        margin: 0 0 6px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      h3 {
+        margin: 0 0 10px;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.018em;
+        max-width: 24ch;
+      }
+
+      p {
+        margin: 0 0 14px;
+        max-width: 66ch;
+      }
+
+      .sub {
+        color: var(--ink-2);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
+        gap: 16px;
+        margin-top: 26px;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--r-lg);
+        box-shadow: var(--shadow);
+        padding: 20px;
+        transition: transform 160ms ease, box-shadow 160ms ease;
+      }
+
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 4px rgba(18, 22, 30, 0.06), 0 16px 32px rgba(18, 22, 30, 0.11);
+      }
+
+      .card h4 {
+        margin: 0 0 7px;
+        font-size: 15.5px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+
+      .card p {
+        margin: 0;
+        font-size: 14px;
+        color: var(--ink-2);
+      }
+
+      .glyph {
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+        display: grid;
+        place-items: center;
+        margin-bottom: 13px;
+        color: #fff;
+      }
+
+      .glyph .ms {
+        font-size: 20px;
+      }
+
+      .g-red { background: var(--accent); }
+      .g-green { background: var(--green); }
+      .g-amber { background: var(--amber); }
+      .g-violet { background: var(--violet); }
+      .g-slate { background: var(--muted); }
+      .g-ink { background: var(--ink); }
+
+      /* ---------- scenarios ---------- */
+
+      .story {
+        display: grid;
+        grid-template-columns: 46px minmax(0, 1fr);
+        gap: 16px;
+        padding: 22px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .story:first-of-type {
+        border-top: 0;
+      }
+
+      .story .glyph {
+        margin: 0;
+        width: 42px;
+        height: 42px;
+      }
+
+      .story h4 {
+        margin: 0 0 6px;
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: -0.012em;
+      }
+
+      .story p {
+        margin: 0 0 10px;
+        font-size: 15px;
+        color: var(--ink-2);
+      }
+
+      .after {
+        display: inline-flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin: 0;
+        padding: 11px 14px;
+        background: #eef8f2;
+        border: 1px solid #cfe9db;
+        border-radius: var(--r-md);
+        font-size: 14px;
+        color: #145c3c;
+        max-width: 68ch;
+      }
+
+      .after .ms {
+        font-size: 19px;
+        color: var(--green-ink);
+        margin-top: -1px;
+      }
+
+      /* ---------- code + tables ---------- */
+
+      pre {
+        margin: 18px 0 0;
+        padding: 18px 20px;
+        background: #16191f;
+        color: #e8ebf1;
+        border-radius: var(--r-md);
+        overflow-x: auto;
+        font: 400 13px/1.75 var(--mono);
+      }
+
+      pre .c {
+        color: #8a94a6;
+      }
+
+      code {
+        font: 500 0.9em/1.4 var(--mono);
+        background: #e9ecf2;
+        border-radius: 5px;
+        padding: 2px 5px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        font-size: 14px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--r-md);
+        overflow: hidden;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+
+      th {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--muted);
+        background: #fafbfc;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      td .ms {
+        font-size: 18px;
+        vertical-align: -4px;
+        margin-right: 6px;
+      }
+
+      td.yes .ms {
+        color: var(--accent-ink);
+      }
+
+      td.no .ms {
+        color: var(--green-ink);
+      }
+
+      .two {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 26px;
+        margin-top: 22px;
+      }
+
+      .band {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--r-lg);
+        box-shadow: var(--shadow);
+        padding: 26px;
+        margin-top: 26px;
+      }
+
+      .band h4 {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin: 0 0 8px;
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: -0.012em;
+      }
+
+      .band h4 .ms {
+        color: var(--accent);
+        font-size: 22px;
+      }
+
+      /* A claim about a build that does not exist yet wears this chip until it ships. */
+      .chip {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #8a5a00;
+        background: #fdf3e2;
+        border: 1px solid #f0d9ac;
+        border-radius: 999px;
+        padding: 3px 9px;
+        flex: none;
+      }
+
+      .band p:last-child {
+        margin-bottom: 0;
+      }
+
+      ul.ticks {
+        margin: 20px 0 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 10px;
+      }
+
+      ul.ticks li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        color: var(--ink-2);
+        font-size: 14.5px;
+      }
+
+      ul.ticks .ms {
+        font-size: 19px;
+        color: var(--accent);
+        margin-top: 1px;
+      }
+
+      footer {
+        border-top: 1px solid var(--line);
+        padding: 30px 0 46px;
+        font-size: 13.5px;
+        color: var(--muted);
+      }
+
+      .note {
+        font-size: 13.5px;
+        color: var(--muted);
+        max-width: 70ch;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site">
+      <div class="wrap site-row">
+        <a class="brand" href="."><img src="./logo.png" alt="" width="26" height="26" />Drive<b>Tooth</b></a>
+        <nav class="nav">
+          <a href="#stories"><span class="ms" aria-hidden="true">local_police</span>Stories</a>
+          <a href="#features"><span class="ms" aria-hidden="true">shield</span>Features</a>
+          <a href="#how"><span class="ms" aria-hidden="true">key</span>How it works</a>
+          <a href="#exposure"><span class="ms" aria-hidden="true">visibility</span>Security</a>
+          <a href="#get"><span class="ms" aria-hidden="true">download</span>Download</a>
+          <a href="https://github.com/mrnhyie/drivetooth" class="src"><span class="ms" aria-hidden="true">code</span>Source</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <div class="hero">
+        <p class="kicker">A holistic tooth for drives</p>
+        <h1>The stick is gone. The files are not anyone else's.</h1>
+        <p class="lede">
+          DriveTooth puts a password on the files you carry, right where they sit on the USB drive.
+          Lose the drive, send it by courier, plug it into the print shop — nobody reads a thing
+          without you. No account to make, no cloud that holds a copy, no company that can be
+          subpoenaed for your key. Just the drive, and what you type into it.
+        </p>
+        <div class="cta">
+          <a class="btn primary" href="#get"><span class="ms" aria-hidden="true">download</span>Download <small>macOS · Windows · Linux</small></a>
+          <a class="btn ghost" href="#stories"><span class="ms" aria-hidden="true">menu_book</span>See what it protects</a>
+        </div>
+        <ul class="promise">
+          <li><span class="ms fill" aria-hidden="true">lock</span>Files unreadable without your password</li>
+          <li><span class="ms fill" aria-hidden="true">cloud_off</span>Nothing leaves the drive</li>
+          <li><span class="ms fill" aria-hidden="true">verified_user</span>Free and open source</li>
+          <li><span class="ms fill" aria-hidden="true">usb</span>Open it on any machine, no account</li>
+        </ul>
+      </div>
+
+      <section id="stories">
+        <h2>Real situations</h2>
+        <h3>The moments this was written for</h3>
+        <p class="sub">
+          Nobody plans to lose a drive. It is the taxi, the reception desk, the courier, the drawer
+          of old hardware. Here is what each of those looks like with the files sealed, and what the
+          person who ends up with the drive can do about it.
+        </p>
+
+        <div class="story">
+          <div class="glyph g-amber"><span class="ms" aria-hidden="true">local_taxi</span></div>
+          <div>
+            <h4>The USB stick left in a taxi</h4>
+            <p>
+              Client folders, an ID scan, a spreadsheet with everyone's phone number. Someone picks
+              the stick up, plugs it in at home out of curiosity, and wants names.
+            </p>
+            <p class="after">
+              <span class="ms" aria-hidden="true">check_circle</span>
+              They open the drive and find one hidden-looking folder of unreadable files. No names,
+              no preview, no folder tree, no idea which client anything belongs to. Your password is
+              the only thing that ever knew.
+            </p>
+          </div>
+        </div>
+
+        <div class="story">
+          <div class="glyph g-red"><span class="ms" aria-hidden="true">print</span></div>
+          <div>
+            <h4>The shared office printer and the library computer</h4>
+            <p>
+              You need one document out of a folder of forty. The machine in the corner is not
+              yours, and neither is the memory it keeps of everything that has ever been plugged
+              into it.
+            </p>
+            <p class="after">
+              <span class="ms" aria-hidden="true">check_circle</span>
+              You unlock the drive, copy out the one file you came for, lock it again in a click, and
+              walk away. What stays behind on that computer is ciphertext with no names attached.
+            </p>
+          </div>
+        </div>
+
+        <div class="story">
+          <div class="glyph g-violet"><span class="ms" aria-hidden="true">local_shipping</span></div>
+          <div>
+            <h4>The drive mailed to a lawyer, an accountant, a lab</h4>
+            <p>
+              Physical delivery still moves the biggest files. A parcel goes through a sorting
+              facility, a van, somebody's porch, and possibly a claims form.
+            </p>
+            <p class="after">
+              <span class="ms" aria-hidden="true">check_circle</span>
+              The drive arrives, the recipient installs nothing special, and the copy of DriveTooth
+              sitting on the stick opens it with the password you texted them. If it never arrives,
+              nobody else gets a say about what was on it.
+            </p>
+          </div>
+        </div>
+
+        <div class="story">
+          <div class="glyph g-green"><span class="ms" aria-hidden="true">health_and_safety</span></div>
+          <div>
+            <h4>Patient records, journals, evidence, the family photos</h4>
+            <p>
+              Some folders are not embarrassing to lose, they are harmful. A dental chart, a legal
+              hold, a research dataset before publication, the only copy of your grandmother's
+              videos.
+            </p>
+            <p class="after">
+              <span class="ms" aria-hidden="true">check_circle</span>
+              Tick those folders and everything else on the stick keeps working as normal. The drive
+              stays a drive — you just stop being able to hand it to someone and hope.
+            </p>
+          </div>
+        </div>
+
+        <div class="story">
+          <div class="glyph g-slate"><span class="ms" aria-hidden="true">delete</span></div>
+          <div>
+            <h4>The drawer of old drives, given away</h4>
+            <p>
+              "Deleted" is not deleted. A £12 tool pulls files back off a formatted stick, and the
+              one you sold last month had tax returns on it in March.
+            </p>
+            <p class="after">
+              <span class="ms" aria-hidden="true">check_circle</span>
+              Anything you sealed first stays sealed: the copy on the drive is ciphertext, so a drive
+              you hand over later carries nothing readable about what it used to hold. What
+              DriveTooth does <em>not</em> do is wipe a drive — sealing removes plaintext, it does not
+              overwrite the space it used to occupy, so erase hardware before it leaves the house.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <h2>What it does</h2>
+        <h3>Plainly</h3>
+        <div class="grid">
+          <div class="card">
+            <div class="glyph g-red"><span class="ms" aria-hidden="true">lock</span></div>
+            <h4>One password, no account</h4>
+            <p>
+              No email, no signup, no licence key, no subscription, nothing that can be sold or
+              hacked later. The password is only ever used on the drive in front of you.
+            </p>
+          </div>
+          <div class="card">
+            <div class="glyph g-green"><span class="ms" aria-hidden="true">folder_managed</span></div>
+            <h4>It stays your normal drive</h4>
+            <p>
+              No reformatting, no giant encrypted container file, no special driver. The files are
+              turned into ciphertext where they sit, and unlocking puts them back exactly as they
+              were, names and dates included.
+            </p>
+          </div>
+          <div class="card">
+            <div class="glyph g-violet"><span class="ms" aria-hidden="true">rule_folder</span></div>
+            <h4>Lock only what matters</h4>
+            <p>
+              Tick the folders you want sealed and leave the rest plain, so the same stick can carry
+              files for a client and files for a stranger.
+            </p>
+          </div>
+          <div class="card">
+            <div class="glyph g-amber"><span class="ms" aria-hidden="true">history_toggle_off</span></div>
+            <h4>It survives being yanked out</h4>
+            <p>
+              Mid-way through encrypting, a drive can be pulled. DriveTooth keeps a journal, and
+              recovery reads what is actually on the disk and finishes or undoes the pass. It never
+              deletes something readable on a guess.
+            </p>
+          </div>
+          <div class="card">
+            <div class="glyph g-ink"><span class="ms" aria-hidden="true">key</span></div>
+            <h4>Change the password in a second</h4>
+            <p>
+              Even on a 1 TB drive. Only a 32-byte key wrap is rewritten, so the ciphertext does not
+              move and a new password takes effect immediately.
+            </p>
+          </div>
+          <div class="card">
+            <div class="glyph g-slate"><span class="ms" aria-hidden="true">wifi_off</span></div>
+            <h4>Works with no internet at all</h4>
+            <p>
+              On a plane, in a basement archive, in a clinic with the network cut. Nothing phones
+              home, so nothing can be blocked, and nothing about you is ever sent anywhere.
+            </p>
+          </div>
+        </div>
+
+        <div class="band">
+          <h4><span class="ms" aria-hidden="true">usb</span>The way to open it travels with the drive <span class="chip">next release</span></h4>
+          <p>
+            A locked drive is only useful if you can open it where you happen to be. So the stick
+            carries its own copy of DriveTooth in a plain folder next to the sealed files: plug into
+            a Windows laptop at a hotel, a Mac at a colleague's, a Linux box at the office, double-click
+            the copy on the stick, type your password, done. Nothing gets installed on someone else's
+            machine and nothing is left behind when you unplug.
+          </p>
+          <p>
+            The copy on the drive can only open the drive, and only with the password. It holds no
+            key, remembers nothing, and is the same program you would download here.
+          </p>
+          <p class="note">
+            This one is not in the download above yet: v0.1.0 needs DriveTooth installed on the
+            machine, or run from the unzipped app. Carrying the unlocker on the stick is the next
+            build, and this page says so rather than promising it.
+          </p>
+        </div>
+      </section>
+
+      <section id="how">
+        <h2>How it works</h2>
+        <h3>For the people who want the details</h3>
+        <p>
+          After one lock, the folder tree is gone from the root of the drive. What remains is a
+          hidden vault folder holding ciphertext, plus one small file that says a vault exists:
+        </p>
+        <pre><span class="c"># what any computer sees when you plug the drive in</span>
+/Volumes/STICK
+├── .drivetooth/            <span class="c"># hidden on macOS, Linux and Windows</span>
+│   ├── volume.json         <span class="c"># format, uuid, label, KDF params, wrapped key</span>
+│   ├── manifest.dt         <span class="c"># encrypted: every name, path, date, mode</span>
+│   ├── journal.dt          <span class="c"># only while an operation is in flight</span>
+│   └── blobs/
+│       ├── 9ac3f1…d2.dtc   <span class="c"># one file, AES-256-GCM in 1 MiB chunks</span>
+│       └── 41b70e…a8.dtc
+├── DriveTooth.app / .exe   <span class="c"># next release: the copy that opens it, no key inside</span>
+└── readme.txt              <span class="c"># unticked files stay plain</span></pre>
+        <div class="two">
+          <div>
+            <h4 style="font-size: 15.5px; margin: 0 0 8px">Keys</h4>
+            <p style="font-size: 14px">
+              Password → Argon2id (calibrated to about a second, so guessing is expensive) →
+              password key → unwraps a random volume key. HKDF then splits that into a manifest
+              subkey, a name subkey, and one subkey per file bound to its own random salt — no key
+              is shared between files.
+            </p>
+          </div>
+          <div>
+            <h4 style="font-size: 15.5px; margin: 0 0 8px">Locking and unlocking</h4>
+            <p style="font-size: 14px">
+              A lock writes every blob, flushes it to the disk, re-reads and authenticates each one,
+              and only then removes the plaintext. The key stays in memory for 15 minutes, so
+              re-locking needs no password. Cancelling is refused past the point of no return rather
+              than leaving a drive half-done.
+            </p>
+          </div>
+        </div>
+        <p class="note" style="margin-top: 22px">
+          The same engine ships as a command-line tool, <code>dt_pass</code>, for the drive that
+          will not open in the window and the machine you would rather diagnose from a terminal.
+        </p>
+      </section>
+
+      <section id="exposure">
+        <h2>Security, stated plainly</h2>
+        <h3>What someone with your drive can learn without the password</h3>
+        <p>
+          We would not want a vague promise on our own drives, so here is the real list. The code is
+          open and the format is documented above; you can check every line of this table against it.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 44%">Without the password</th>
+              <th>What is actually exposed</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>What is inside your files</td>
+              <td><span class="ms" aria-hidden="true">lock</span><strong>Nothing.</strong> AES-256-GCM, and tampering with a blob makes it refuse to open.</td>
+            </tr>
+            <tr>
+              <td>File names, folders, where things live</td>
+              <td><span class="ms" aria-hidden="true">lock</span><strong>Nothing.</strong> They are stored in the encrypted manifest.</td>
+            </tr>
+            <tr>
+              <td>When a file was last changed</td>
+              <td><span class="ms" aria-hidden="true">lock</span><strong>Nothing.</strong> Also in the manifest.</td>
+            </tr>
+            <tr>
+              <td>How many files you have</td>
+              <td><span class="ms" aria-hidden="true">remove_red_eye</span><strong>Visible.</strong> One opaque blob per file.</td>
+            </tr>
+            <tr>
+              <td>The size of each file</td>
+              <td>
+                <span class="ms" aria-hidden="true">remove_red_eye</span><strong>Visible.</strong> Each blob starts with a 68-byte
+                header that records the original length in the clear. Padding blobs to coarse size
+                buckets is on the roadmap; until then, treat file sizes as public.
+              </td>
+            </tr>
+            <tr>
+              <td>When the drive was last locked, and its label</td>
+              <td><span class="ms" aria-hidden="true">remove_red_eye</span><strong>Visible.</strong> Disk and filesystem bookkeeping any computer reads to mount it.</td>
+            </tr>
+            <tr>
+              <td>Guessing the password</td>
+              <td>
+                <span class="ms" aria-hidden="true">warning</span><strong>Possible offline, forever.</strong> The vault carries a
+                check that lets an attacker test candidates with no rate limit. Argon2id makes each
+                try cost about a second — a long passphrase is what makes that worthless.
+              </td>
+            </tr>
+            <tr>
+              <td>Hiding that you have protected data at all</td>
+              <td><span class="ms" aria-hidden="true">do_not_disturb_on</span><strong>Not offered.</strong> The vault folder announces itself.</td>
+            </tr>
+          </tbody>
+        </table>
+        <ul class="ticks">
+          <li><span class="ms" aria-hidden="true">thumb_up</span><span><strong>Good against:</strong> a lost, stolen or mislaid drive; a machine you do not control; the person who finds it and starts clicking.</span></li>
+          <li><span class="ms" aria-hidden="true">thumb_down</span><span><strong>Not good against:</strong> a determined adversary with unlimited time and a weak password, someone watching you type it, or a computer you are already logged into (while unlocked, the key is in memory).</span></li>
+          <li><span class="ms" aria-hidden="true">info</span><span><strong>Not the same thing as disk encryption.</strong> FileVault, BitLocker and LUKS protect a whole machine and cannot travel as files. Use both: them for the laptop, DriveTooth for what you carry.</span></li>
+        </ul>
+      </section>
+
+      <section id="platforms">
+        <h2>Platforms</h2>
+        <h3>Built for the drives people actually carry</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Host</th>
+              <th>Filesystems</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="ms" aria-hidden="true">apple</span>&nbsp;macOS 12+</td>
+              <td>APFS, exFAT, FAT32, NTFS (read), HFS+</td>
+              <td>Volumes under <code>/Volumes</code>; the disk your system runs from is refused.</td>
+            </tr>
+            <tr>
+              <td><span class="ms" aria-hidden="true">windows</span>&nbsp;Windows 10 / 11</td>
+              <td>NTFS, exFAT, FAT32, ReFS</td>
+              <td>Drives A–Z; <code>.drivetooth</code> is marked hidden.</td>
+            </tr>
+            <tr>
+              <td><span class="ms" aria-hidden="true">linux</span>&nbsp;Linux</td>
+              <td>ext4, exFAT, FAT32, NTFS, Btrfs, XFS</td>
+              <td><code>/run/media</code>, <code>/media</code>, <code>/mnt</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="note" style="margin-top: 18px">
+          A drive sealed on one of these opens on all of them. exFAT and FAT32 have no ownership
+          model, so permissions are kept where the filesystem supports them and dropped where it
+          does not — which cannot make a file any more readable.
+        </p>
+      </section>
+
+      <section id="get">
+        <h2>Get it</h2>
+        <h3>Download it, or build it yourself</h3>
+        <p>
+          Pick the build for the computer you will use. Then, if you want the unlocker riding along
+          in your pocket, drop the same program onto the drive you just sealed.
+        </p>
+        <div class="cta" style="margin-top: 18px">
+          <a class="btn primary dl" data-suffix="DriveTooth_0.1.0_universal.dmg"><span class="ms" aria-hidden="true">download</span>macOS <small>Apple silicon + Intel</small></a>
+          <a class="btn primary dl" data-suffix="DriveTooth_0.1.0_x64-setup.exe"><span class="ms" aria-hidden="true">download</span>Windows <small>NSIS installer</small></a>
+          <a class="btn primary dl" data-suffix="drivetooth_0.1.0_amd64.deb"><span class="ms" aria-hidden="true">download</span>Linux <small>.deb / .AppImage</small></a>
+          <a class="btn ghost" href="https://github.com/mrnhyie/drivetooth/releases"><span class="ms" aria-hidden="true">inventory_2</span>All releases</a>
+        </div>
+        <pre><span class="c"># or build it from source — Rust plus the Tauri v2 prerequisites</span>
+git clone https://github.com/mrnhyie/drivetooth.git
+cd drivetooth
+npm install
+npm run dev            <span class="c"># development window</span>
+npm run build          <span class="c"># distributable bundle for this OS</span>
+npm run test:engine    <span class="c"># the whole engine, no window required</span></pre>
+        <p class="note" style="margin-top: 20px">
+          There is no distribution server you have to trust. The release files are the same code this
+          page links to, and building it yourself gets you a binary with nobody's name on it but
+          yours.
+        </p>
+      </section>
+
+      <section id="limits">
+        <h2>Before you rely on it</h2>
+        <h3>The four things people get wrong</h3>
+        <div class="grid">
+          <div class="card">
+            <div class="glyph g-ink"><span class="ms" aria-hidden="true">help</span></div>
+            <h4>The password is the whole thing</h4>
+            <p>
+              There is no reset link, no backup code, no support inbox, on purpose. Forget it and
+              your files are ciphertext forever, including to you. Write it down somewhere physical.
+            </p>
+          </div>
+          <div class="card">
+            <div class="glyph g-amber"><span class="ms" aria-hidden="true">touch_app</span></div>
+            <h4>The drive still mounts normally</h4>
+            <p>
+              No operating system asks you for a password before plugging in a USB stick, and we do
+              not fake one. The drive opens; there is simply nothing readable inside it until you
+              type the password.
+            </p>
+          </div>
+          <div class="card">
+            <div class="glyph g-red"><span class="ms" aria-hidden="true">schedule</span></div>
+            <h4>Unlocked means unlocked</h4>
+            <p>
+              While the drive is open, its names are visible to whatever the computer can see, and
+              the key sits in memory for 15 minutes. Lock it before you leave the desk.
+            </p>
+          </div>
+          <div class="card">
+            <div class="glyph g-green"><span class="ms" aria-hidden="true">science</span></div>
+            <h4>No audit yet</h4>
+            <p>
+              Standard primitives, composed carefully, covered by 84 tests — and never reviewed by
+              anyone outside the project. If you are protecting something that must not leak, read
+              the code or pay someone who can.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        <p class="note" style="margin: 0 0 10px">
+          <strong>A holistic tooth for drives.</strong>
+          DriveTooth is free and open source. Read the code, run the tests, build it yourself.
+          <a href="https://github.com/mrnhyie/drivetooth">Repository</a> ·
+          <a href="https://github.com/mrnhyie/drivetooth/issues">Issues</a> ·
+          <a href="https://github.com/mrnhyie/drivetooth/blob/main/LICENSE">License</a>
+          <br />
+          This page makes exactly one network request — the Material Symbols icon font. The app
+          itself makes none.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      /* One line to edit before publishing: your GitHub repository. Every download and source
+         link on this page is built from it. */
+      const REPO = "https://github.com/mrnhyie/drivetooth";
+      for (const link of document.querySelectorAll("a.dl")) {
+        link.href = `${REPO}/releases/download/v0.1.0/${link.dataset.suffix}`;
+      }
+      for (const link of document.querySelectorAll('a[href^="https://github.com/mrnhyie/drivetooth"]')) {
+        link.href = link.href.replace("https://github.com/mrnhyie/drivetooth", REPO);
+      }
+      document.querySelector("a.src").href = REPO;
+    </script>
+  </body>
+</html>

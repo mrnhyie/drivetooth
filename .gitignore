@@ -1,0 +1,9 @@
+/node_modules
+/src-tauri/target
+/src-tauri/gen/schemas
+/dist-tauri
+
+# local scratch: generated icon sources and throwaway image runs
+/vibe_images
+/assets/app-icon.png
+.DS_Store

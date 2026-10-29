@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DriveTooth</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <img class="mark" src="./logo.png" alt="" width="26" height="26" />
+          <span class="wordmark">Drive<b>Tooth</b></span>
+        </div>
+
+        <p class="side-caption">Drives <span id="drives-count" class="count">0</span></p>
+        <ul id="drive-list" class="drive-list" role="listbox" aria-label="Mounted drives"></ul>
+        <p id="drives-empty" class="empty hidden">No drives found. Insert a USB drive and press Rescan.</p>
+
+        <div class="side-foot">
+          <button id="refresh-drives" class="ghost block-btn" title="Re-scan mounted drives">
+            Rescan drives
+          </button>
+          <p class="side-note">
+            No account, no server, no update check. Files are rewritten as ciphertext on the drive
+            itself, by this app, on this machine.
+          </p>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="page-head">
+          <div>
+            <h1 id="detail-heading">No drive selected</h1>
+            <p id="detail-sub" class="page-sub">Pick a drive on the left.</p>
+          </div>
+          <span id="detail-state" class="badge"></span>
+        </header>
+
+        <section id="space-card" class="card hidden">
+          <div class="card-head">
+            <h3>Drive space</h3>
+          </div>
+          <div id="space-stats" class="stats"></div>
+          <div id="space-bar" class="bar" role="img" aria-label="Drive space used"></div>
+          <div id="space-legend" class="legend"></div>
+        </section>
+
+        <section id="contents-card" class="block hidden">
+          <div class="block-head">
+            <h3 id="contents-title">Contents</h3>
+            <span id="contents-meta" class="hint"></span>
+          </div>
+          <div id="kind-tiles" class="tiles"></div>
+          <div class="two-col">
+            <div class="col">
+              <p id="recent-caption" class="col-caption">Newest</p>
+              <ul id="recent-list" class="recent"></ul>
+            </div>
+            <div class="col">
+              <p id="paths-caption" class="col-caption">Paths</p>
+              <ul id="path-list" class="paths"></ul>
+            </div>
+          </div>
+        </section>
+
+        <div id="detail-body" class="detail-body"></div>
+
+        <section id="progress-panel" class="progress hidden" aria-live="polite">
+          <div class="progress-head">
+            <span id="progress-op" class="progress-op"></span>
+            <span id="progress-phase" class="progress-phase"></span>
+            <span class="spacer"></span>
+            <span id="progress-metrics" class="progress-metrics"></span>
+            <button id="cancel-op" class="ghost danger">Cancel</button>
+          </div>
+          <div class="track"><div id="progress-fill" class="fill"></div></div>
+          <div id="progress-current" class="progress-current"></div>
+        </section>
+
+        <!-- The activity log is moved into the sheet by the Activity tab and back here when the
+             sheet closes, so the log element itself never gets rebuilt. -->
+        <div id="log-home">
+          <section class="card activity-card" id="activity-card">
+            <div class="card-head">
+              <h3>Activity</h3>
+              <button id="clear-log" class="ghost tiny">Clear</button>
+            </div>
+            <ol id="log" class="log"></ol>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <dialog id="action-sheet" class="sheet" aria-label="Drive action">
+      <button id="sheet-close" class="ghost tiny sheet-x" type="button">Close</button>
+      <div id="sheet-body" class="sheet-body"></div>
+    </dialog>
+
+    <script src="./main.js" type="module"></script>
+  </body>
+</html>

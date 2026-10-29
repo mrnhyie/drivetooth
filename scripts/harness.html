@@ -1,0 +1,35 @@
+<!doctype html>
+<!--
+  Development-only harness: loads the real dist/index.html markup and dist/main.js against a
+  stubbed Tauri API, so the front end can be clicked through in a browser without building the
+  desktop app. Serve the repository root and open /scripts/harness.html. Not part of the app.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>DriveTooth harness</title>
+  </head>
+  <body>
+    <script>
+      const request = new XMLHttpRequest();
+      request.open("GET", "/dist/index.html", false);
+      request.send();
+      const markup = request.responseText
+        .replace(/<\/?html[^>]*>/g, "")
+        .replace(/\.\/styles\.css/, "/dist/styles.css")
+        .replace(/src="\.\//g, 'src="/dist/')
+        .replace(/<script src="\.\/main\.js" type="module"><\/script>/, "");
+      document.documentElement.innerHTML = markup;
+
+      const mock = document.createElement("script");
+      mock.src = "/scripts/harness-mock.js";
+      mock.addEventListener("load", () => {
+        const app = document.createElement("script");
+        app.type = "module";
+        app.src = "/dist/main.js";
+        document.body.append(app);
+      });
+      document.head.append(mock);
+    </script>
+  </body>
+</html>
