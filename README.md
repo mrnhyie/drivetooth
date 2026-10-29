@@ -171,3 +171,6 @@ lock the disk you are sitting on.
 - Filenames are visible while unlocked, because that is what an unlocked drive is for.
 - This is a v0.1 personal-security tool: the crypto is standard primitives composed
   carefully and covered by 84 tests, and it has had no external audit.
+- There is no `LICENSE` file. The repository is public, so anyone can read it, but that is not
+  the same as an open-source grant: no one has the right to redistribute or fork it. Landing-page
+  copy is worded to match — if that changes, add `LICENSE` and restore the two claims.
